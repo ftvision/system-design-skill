@@ -94,7 +94,7 @@ Newer topics that show up in current loops, especially at AI-native companies. L
 | AI agent orchestration (long-running, tool-using) | `agent-orchestration` | structure, deep-dive | Durable execution, tool dispatch, observability, cost control. |
 | Code completion service (Copilot-like, low-latency) | `code-completion` | deep-dive, tradeoff | <200 ms p99, context window management, accept-rate as SLI. |
 | Multi-tenant LLM gateway (rate-limit, route, cache) | `llm-gateway` | structure, tradeoff | Per-tenant quotas, model routing, prompt cache, fallback. |
-| Multi-device config sync with team policy (Cursor-like) | `cursor-config-sync` | scoping, deep-dive | Force vs default modes, multi-team precedence, sub-30s force-push fanout. |
+| Multi-device config sync with team policy | `team-policy-sync` | scoping, deep-dive | Force vs default modes, multi-team precedence, sub-30s force-push fanout. |
 | Prompt cache / response cache for LLMs | `llm-cache` | tradeoff, deep-dive | Semantic vs exact, TTL, invalidation on model swap. |
 | Evaluation infrastructure for LLM apps | `llm-eval` | structure, scoping | Offline vs online, golden set drift, statistical power. |
 | Real-time voice agent (Whisper + LLM + TTS) | `voice-agent` | deep-dive, tradeoff | Streaming pipeline, interruption handling, sub-second turn-taking. |
@@ -127,7 +127,7 @@ When the user asks for a problem and hasn't specified one:
 1. **First mock ever** → suggest from `easy`. Build the rhythm before the depth.
 2. **Practicing for a specific company** → mix domain-deep matches with one canonical medium for breadth.
 3. **Targeting staff/principal** → at least half from `hard` or `staff+`. Never default to easy at this level.
-4. **AI-native company (Anthropic, OpenAI, Cursor, Perplexity)** → bias toward `modern` plus one classic to test fundamentals.
+4. **AI-native company** → bias toward `modern` plus one classic to test fundamentals.
 5. **Want to find your weak spot** → cross-reference `weaknesses.md`. If `tradeoff` is the recurring gap, suggest a topic where the deep-dive forces a binary choice (e.g., `google-docs` for OT-vs-CRDT, `payments` for ledger-vs-event-sourcing).
 
 When the user asks `generate` without a topic: pick from `modern` first (less reference material exists, so a generated rubric is more useful), then `staff+` (fewer canonical worked examples to crib from).

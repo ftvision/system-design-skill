@@ -83,7 +83,7 @@ flowchart TD
 
 Use this as the **opening high-level architecture** for most read-heavy services. Specialize the boxes (rename to actual services) and remove what doesn't apply.
 
-### Template B — Push fanout sequence (the cursor-config-sync deep dive)
+### Template B — Push fanout sequence (admin force-push to many devices)
 
 ```mermaid
 sequenceDiagram
