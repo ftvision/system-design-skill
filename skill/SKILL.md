@@ -82,6 +82,16 @@ Location: `~/.system-design/state/`. Create the directory on first write; absent
 
 When `--direction != general`, mode reference files should also shape the **rubric** and **deep-dive probes** toward that domain's canonical components.
 
+### Reference assets (load on demand)
+
+These are reference files modes consult when relevant. Don't load them on every invocation; load when the rule below fires.
+
+| File | Load when |
+|---|---|
+| [reference/primitives.md](reference/primitives.md) — cited cheatsheet of latency, capacity, BOE templates, named patterns | `mock` debrief when scoring `tradeoff reasoning` or `deep-dive depth` ≤ 3 (cite the relevant section); `postmortem` when diagnosis includes "missed numbers" or "no BOE"; `learn` when the candidate-side agent needs to ground a number. |
+| [reference/topics.md](reference/topics.md) — vetted topic catalog with difficulty + slugs | `mock` or `learn` invoked without a topic (suggest from the catalog filtered by `level.md` and `--direction`); `generate` invoked without a topic (pick from `modern` or `staff+`). |
+| [reference/diagrams.md](reference/diagrams.md) — Mermaid cheatsheet with system-design templates | `learn` whenever Claude is in the candidate role (default mode always; `--auto` candidate sub-agent only — never the interviewer sub-agent); `postmortem` when illustrating a structural gap in "what stronger would have done." **Never** loaded by `mock` (interviewer doesn't draw) or `generate` (questions are prose only). |
+
 ## Hard don'ts (apply across all modes)
 
 - Don't volunteer architecture in `mock`. Coaching belongs in the debrief.
