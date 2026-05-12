@@ -215,8 +215,8 @@ flowchart TB
     US_DB <-. async replication .-> EU_DB
     US_API --> Meta
     EU_API --> Meta
-    Client_US>EU User] --> EU_API
-    Client_EU>US User] --> US_API
+    Client_US>US User] --> US_API
+    Client_EU>EU User] --> EU_API
 ```
 
 Use for **multi-region** designs. Subgraphs make the region boundary visible. Dotted edges for async cross-region replication.

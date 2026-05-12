@@ -31,7 +31,7 @@ If `tradeoff reasoning` or `deep-dive depth` scores ≤ 3, load [reference/primi
 Then:
 - 2–3 specific moments where a stronger answer existed. Quote what they said. State what a stronger answer would have been (cite a primitives.md pattern by name when relevant — e.g. "should have reached for transactional outbox; see primitives.md §7").
 - Top 2 weak dimensions to drill next.
-- Specific next-question recommendations as concrete commands (e.g. `system-design generate consistent-hashing`, `system-design mock chat-system`). Pull next-topic suggestions from [reference/topics.md](topics.md) — pick slugs that stress the weak dimensions.
+- Specific next-question recommendations as concrete commands (e.g. `system-design generate distributed-cache`, `system-design mock chat-messaging`). Pull next-topic suggestions from [reference/topics.md](topics.md) — pick slugs that stress the weak dimensions.
 
 ## State updates (after debrief)
 
