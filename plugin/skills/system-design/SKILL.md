@@ -64,9 +64,23 @@ Location: `~/.system-design/state/`. Create the directory on first write; absent
 | Flag | Modes | Default |
 |---|---|---|
 | `--level=<junior\|senior\|staff\|principal>` | all | from `level.md`, else `staff` |
+| `--direction=<general\|distributed-systems\|ml-infra\|llm>` | `generate`, `mock`, `learn --auto` | `general` |
 | `--file=<path>` | `postmortem` | — |
 | `--auto` | `learn` | off |
 | `--exchanges=<N>` | `learn --auto` | `30` |
+
+### Direction (problem domain)
+
+`--direction` biases topic and deep-dive selection toward a specific subdomain. Applies only when the user does **not** supply an explicit `$2+` problem (an explicit problem always wins). Invalid value → ask, don't guess.
+
+| Value | Includes (use this list when picking topics and shaping deep-dive probes) |
+|---|---|
+| `general` | (default) Any common interview topic: feeds, chat, ride-share, URL shortener, rate limiter, payments, search autocomplete. |
+| `distributed-systems` | Replication, consensus, sharding, message queues, CDN/edge cache, leader election, hot partitions, geo-distribution, eventual vs strong consistency, observability for distributed traces. |
+| `ml-infra` | Feature stores (online/offline parity), training pipelines, model registries, model serving (batch + realtime), A/B test infra, label pipelines, vector DBs, embedding stores, drift detection. |
+| `llm` | LLM inference serving, prompt routing, RAG pipelines (chunking, retrieval, reranking), agent orchestration, eval & safety pipelines, KV-cache management, multi-model fallback, structured-output validation. |
+
+When `--direction != general`, mode reference files should also shape the **rubric** and **deep-dive probes** toward that domain's canonical components.
 
 ## Hard don'ts (apply across all modes)
 

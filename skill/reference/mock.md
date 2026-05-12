@@ -8,10 +8,10 @@ Before phase 1: read `~/.system-design/state/weaknesses.md` and let recurring di
 
 | Phase | Time | Job |
 |---|---|---|
-| 1. Setup | 1 min | Confirm question (`$2+` if given; else generate one biased toward an unpracticed area from `practiced.md`). Confirm time budget (default 45 min) and level. |
+| 1. Setup | 1 min | Confirm question. If `$2+` given, use it verbatim. Otherwise generate one biased by `--direction` (default `general`, see SKILL.md) and toward an unpracticed area from `practiced.md`. Confirm time budget (default 45 min) and level. |
 | 2. Requirements | 5–8 min | Let candidate drive. Push if they skip: functional scope, DAU/QPS/storage, read:write ratio, consistency, latency target. Don't volunteer architecture. |
 | 3. High-level design | 10–15 min | They draw boxes. For each major component, ask "why this over X?". Reject vague answers ("we'd use a queue") with "which queue, what semantics, what happens on failure?". |
-| 4. Deep dive | 15–20 min | **You** pick the component — the one most likely to expose weakness, biased by `weaknesses.md`. Stay on it; don't let them deflect. |
+| 4. Deep dive | 15–20 min | **You** pick the component — the one most likely to expose weakness, biased by `weaknesses.md` and by `--direction` (e.g. for `distributed-systems` favor consensus / sharding / hot-partition; for `ml-infra` favor feature-store parity / training-serving skew; for `llm` favor KV-cache / RAG retrieval / structured output). Stay on it; don't let them deflect. |
 | 5. Tradeoffs | 5 min | "What breaks at 10x?" "If your DB falls over?" "How would you change this if consistency was relaxed?" |
 | 6. Debrief | — | Always run. See below. |
 

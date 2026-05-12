@@ -33,7 +33,7 @@ Each exchange = 2 sub-agent calls. Default 30 exchanges = ~60 calls. **Tell the 
 
 ### Setup
 
-1. Determine the question. Use `$2+` if provided; otherwise generate one inline (use the `generate` logic but **do not write files** — hold the question in memory).
+1. Determine the question. Use `$2+` verbatim if provided. Otherwise generate one inline using the `generate` topic-selection logic — biased by `--direction` if set (see SKILL.md) — but **do not write files**; hold the question in memory only.
 2. Set level (default `staff` or `--level=...`) and exchanges (default `30` or `--exchanges=N`).
 3. Initialize an in-memory transcript: `[]`.
 

@@ -4,8 +4,13 @@ Write 4 markdown files to `./system-design-questions/<slug>/` in the current wor
 
 ## Topic selection
 
-- If `$2+` is provided, use it as the topic.
-- If not, pick a domain biased toward weak dimensions in `~/.system-design/state/weaknesses.md`. Avoid slugs already in `~/.system-design/state/practiced.md`.
+- If `$2+` is provided, use it as the topic verbatim. `--direction` is ignored in this case.
+- If not, pick a topic by combining, in order:
+  1. **`--direction`** (if set, default `general`) — pick a topic from that subdomain. See the Direction table in SKILL.md for what each value includes.
+  2. **`weaknesses.md`** — bias toward a topic that maximally pressures the user's recurring weak dimensions.
+  3. **`practiced.md`** — exclude slugs already attempted.
+
+When `--direction != general`, also shape `description.md` and `rubric.md` so the likely deep-dive targets, common failure modes, and per-dimension bars emphasize that domain's canonical components (e.g. for `distributed-systems` expect consensus / sharding / hot-partition probes; for `ml-infra` expect feature-store parity / training-serving skew / model rollout probes; for `llm` expect KV-cache / RAG retrieval-quality / structured-output probes).
 
 ## Slug
 

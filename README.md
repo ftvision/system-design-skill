@@ -62,6 +62,8 @@ system-design postmortem --file=./notes.md
 system-design generate                          # generate question + rubric (4 files)
 system-design generate "rate limiter"
 system-design generate "chat system" --level=staff
+system-design generate --direction=ml-infra     # bias topic to ML infra subdomain
+system-design generate --direction=llm          # LLM inference / RAG / agents
 
 system-design learn                             # you interview Claude
 system-design learn "design Cursor's autocomplete backend"
