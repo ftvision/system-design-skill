@@ -134,7 +134,7 @@ The classic horizontal-scaling diagram.
 ```mermaid
 flowchart LR
     Client>Client]
-    Router[Query Router<br/>shard = hash(user_id) % N]
+    Router["Query Router<br/>shard = hash(user_id) % N"]
     subgraph Shards
         S1[(Shard 1)]
         S2[(Shard 2)]
