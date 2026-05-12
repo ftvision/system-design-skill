@@ -15,10 +15,10 @@ Pick the path that matches your harness. The repo ships three pre-built install 
 
 ### Claude Code — plugin (recommended)
 
-Install via the built-in marketplace. Replace `<owner>/<repo>` with this repo's GitHub path:
+Install via the built-in marketplace:
 
 ```
-/plugin marketplace add <owner>/<repo>
+/plugin marketplace add ftvision/system-design-skill
 /plugin install system-design@system-design
 ```
 
@@ -27,7 +27,7 @@ After install, `/system-design` is available in any Claude Code session. Updates
 ### Claude Code — raw skill copy
 
 ```bash
-git clone <this-repo-url> /tmp/system-design-skill
+git clone https://github.com/ftvision/system-design-skill.git /tmp/system-design-skill
 cp -R /tmp/system-design-skill/.claude/skills/system-design ~/.claude/skills/system-design
 ```
 
@@ -38,7 +38,7 @@ Verify: `ls ~/.claude/skills/system-design/SKILL.md`. Then `/system-design` is a
 User-wide:
 
 ```bash
-git clone <this-repo-url> /tmp/system-design-skill
+git clone https://github.com/ftvision/system-design-skill.git /tmp/system-design-skill
 mkdir -p ~/.agents/skills
 cp -R /tmp/system-design-skill/.agents/skills/system-design ~/.agents/skills/system-design
 ```
