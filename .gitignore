@@ -1,0 +1,8 @@
+# Personal practice records — not for sharing
+system-design-practice/
+
+# Per-machine Claude Code permission overrides
+.claude/settings.local.json
+
+# OS noise
+.DS_Store

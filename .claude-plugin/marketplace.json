@@ -1,0 +1,25 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "system-design",
+  "metadata": {
+    "description": "Practice system design interviews with Agent. Mock, learn, postmortem, and question generation."
+  },
+  "owner": {
+    "name": "feitongyang",
+    "email": "feitong.yang@outlook.com"
+  },
+  "plugins": [
+    {
+      "name": "system-design",
+      "description": "A practice harness for system design interviews. Four modes: mock (Agent as strict interviewer), learn (Agent as candidate), postmortem (diagnose a real interview), generate (author a fresh question + rubric).",
+      "version": "0.1.0",
+      "author": {
+        "name": "feitongyang",
+        "email": "feitong.yang@outlook.com"
+      },
+      "source": "./plugin",
+      "category": "productivity",
+      "tags": ["system-design", "interview", "practice", "skill"]
+    }
+  ]
+}
