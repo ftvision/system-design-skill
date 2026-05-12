@@ -1,9 +1,9 @@
 # diagrams — Mermaid cheatsheet for system design
 
-Use Mermaid for all architecture diagrams. It's text-based (this skill can author it), renders natively in Claude Code, GitHub, and most modern markdown viewers, and has the right diagram types for system design.
+Use Mermaid for all architecture diagrams. It's text-based (this skill can author it), renders natively in Claude Code, GitHub, and most modern markdown viewers.
 
 **When to draw — this matters:**
-- ✅ When playing the **candidate** in `learn` mode — both for the high-level architecture (after clarifications) and for any deep-dive that involves a request flow.
+- ✅ When playing the **candidate** in `learn` mode — for high-level architecture (after clarifications) and for any deep-dive that involves a request flow.
 - ✅ In `postmortem` coaching when illustrating "what a stronger candidate would have done."
 - ❌ Never as the interviewer in `mock` — interviewer asks, candidate draws.
 - ❌ Never in `generate` — questions are prose only; diagrams give away the answer.
@@ -14,296 +14,173 @@ Use Mermaid for all architecture diagrams. It's text-based (this skill can autho
 
 | Type | Use for | Example moment |
 |---|---|---|
-| `flowchart TD` / `flowchart LR` | Component/service architecture, data flow between systems | "Here's the high-level architecture" |
-| `sequenceDiagram` | Request flows, t=0 wire-level stories, multi-party protocols | "Walk me through what happens when an admin clicks force-push" |
-| `erDiagram` | Data model / schema relationships, foreign keys, cardinality | "Here's the data model" |
-| `stateDiagram-v2` | Lifecycle of a single entity (order states, write request states, session states) | "What's the lifecycle of a payment?" |
-| `C4Context` (and C4Container) | System-context view, useful at staff+ for "where does this sit" framing | Opening a multi-system design |
+| `flowchart` | Component/service architecture, data flow between systems | "Here's the high-level architecture" |
+| `sequenceDiagram` | Request flows, end-to-end walkthroughs | "Walk me through what happens on a read" |
+| `erDiagram` | Data model, schema relationships | "Show me the schema" |
 
 **Pick by question, not preference.** "Show me the architecture" → `flowchart`. "Walk me through end-to-end" → `sequenceDiagram`. "What's the schema" → `erDiagram`. Don't draw a flowchart when the interviewer wants a sequence.
 
 ---
 
-## §2 — Conventions for system-design diagrams
+## §2 — Conventions
 
 Treat shape and direction as semantic, not decorative.
 
-**Shapes (flowchart):**
-- `[Service Name]` — stateless service / API
-- `[(Database)]` — persistent store (Postgres, Cassandra, etc.)
-- `[[Cache]]` — cache / in-memory store (Redis, Memcached)
-- `[/Queue/]` — message bus / queue (Kafka, SQS, RabbitMQ)
-- `((CDN))` — edge / CDN layer
-- `>Client]` — external actor (browser, mobile app)
-- `{Decision}` — routing / branching point
+**Flowchart shapes:**
+- `[Service]` — stateless service / API
+- `[(Database)]` — persistent store
+- `[[Cache]]` — in-memory store
+- `[/Queue/]` — message bus
+- `((CDN))` — edge / CDN
+- `>Client]` — external actor
 
-**Direction:**
-- `TD` (top-down) for layered architectures (client → API → DB)
-- `LR` (left-right) for pipelines and request flows
-- Pick one and stick with it within a single diagram.
+**Direction:** `TD` (top-down) for layered architectures, `LR` (left-right) for pipelines. Pick one per diagram.
 
-**Edge labels — always include them when non-obvious:**
-- Label with protocol or semantic: `-- gRPC -->`, `-- async -->`, `-- WebSocket -->`
-- Label with payload size when it matters: `-- ~10KB -->`
-- Dotted edge `-.->` for async / fire-and-forget; solid `-->` for sync request/response.
+**Edge labels:** include them when non-obvious. `-- gRPC -->`, `-- async -->`, `-- ~10KB -->`. Use `-.->` for async/fire-and-forget; `-->` for sync.
 
-**Subgraphs — use for tiers, regions, or trust boundaries:**
-- Group by tier (edge / app / data) when explaining layered architecture.
-- Group by region when designing multi-region.
-- Group by tenant boundary when illustrating isolation.
+**Subgraphs:** group by tier, region, or trust boundary when it adds clarity. Skip if the diagram is small.
 
 ---
 
-## §3 — Templates (copy-paste and adapt)
+## §3 — Canonical templates
 
-### Template A — Generic 3-tier with cache, queue, edge
+Four templates cover ~80% of what a system design candidate needs to draw. Adapt by renaming boxes and adding/removing components — don't invent new shapes or styles per question.
+
+### Template A — Three-tier web service (flowchart)
+
+The opening high-level architecture for almost any read-heavy service.
 
 ```mermaid
 flowchart TD
-    Client>Mobile / Web Client]
-    CDN((CDN))
+    Client>Client]
     LB[Load Balancer]
     API[API Service]
-    Cache[[Redis Cache]]
-    DB[(Postgres Primary)]
+    Cache[[Cache]]
+    DB[(Primary DB)]
     Replica[(Read Replica)]
-    Queue[/Kafka/]
-    Worker[Background Worker]
 
-    Client -- HTTPS --> CDN
-    CDN -- cache miss --> LB
+    Client --> LB
     LB --> API
-    API -- read-through --> Cache
-    Cache -. miss .-> DB
-    API --> Replica
+    API -- read --> Cache
+    Cache -. miss .-> Replica
     API -- write --> DB
-    DB -. CDC .-> Queue
-    Queue --> Worker
+    DB -. async replication .-> Replica
 ```
 
-Use this as the **opening high-level architecture** for most read-heavy services. Specialize the boxes (rename to actual services) and remove what doesn't apply.
+Specialize the boxes (rename to actual services). Add a CDN in front for static-heavy workloads, or a queue + worker pair behind the API for async work — but only if the question asks for it.
 
-### Template B — Push fanout sequence (admin force-push to many devices)
+### Template B — Cache-aside read (sequenceDiagram)
+
+The canonical request-flow walkthrough.
 
 ```mermaid
 sequenceDiagram
-    autonumber
-    participant Admin
-    participant API as Config API
-    participant DB as Postgres
-    participant Outbox
-    participant Kafka
-    participant Fanout as Fanout Worker
-    participant Redis as Redis Pub/Sub
-    participant WS as WS Gateway
-    participant Device
+    participant Client
+    participant API
+    participant Cache
+    participant DB
 
-    Admin->>API: PUT /config (force-push)
-    API->>DB: BEGIN; UPDATE config; INSERT outbox row; COMMIT
-    DB-->>API: 200 OK
-    API-->>Admin: 200 (committed)
-    Outbox->>Kafka: PUBLISH team-config-changes (key=team_id)
-    Kafka->>Fanout: consume
-    Fanout->>Fanout: expand team_id → user_ids (Redis MGET)
-    Fanout->>Redis: PUBLISH user:{id}:invalidate {version}
-    Redis->>WS: deliver to subscribed gateways
-    WS->>Device: WebSocket nudge {team_id, version}
-    Device->>API: GET /config?since=v(n-1)
-    API-->>Device: 200 (delta) or 304
-    Note over Admin,Device: Wall-clock target: <30s p99
+    Client->>API: GET /resource/123
+    API->>Cache: GET resource:123
+    alt cache hit
+        Cache-->>API: value
+    else cache miss
+        Cache-->>API: nil
+        API->>DB: SELECT * WHERE id=123
+        DB-->>API: row
+        API->>Cache: SET resource:123 (TTL 5m)
+    end
+    API-->>Client: 200 OK
 ```
 
-Use for any **t=0 wire-level walkthrough**. Numbered steps (`autonumber`) let the interviewer reference "step 5" without ambiguity. `Note over` calls out SLOs and invariants.
+Use for any "walk me through a read" question. The `alt` block makes the cache-hit vs cache-miss paths explicit — a common interviewer probe.
 
-### Template C — Sharded data layer with coordinator
+### Template C — Simple data model (erDiagram)
+
+The familiar User / Post / Comment shape.
+
+```mermaid
+erDiagram
+    USER ||--o{ POST : authors
+    POST ||--o{ COMMENT : has
+    USER ||--o{ COMMENT : writes
+
+    USER {
+        uuid id PK
+        string email
+        timestamp created_at
+    }
+    POST {
+        uuid id PK
+        uuid author_id FK
+        text body
+        timestamp created_at
+    }
+    COMMENT {
+        uuid id PK
+        uuid post_id FK
+        uuid author_id FK
+        text body
+        timestamp created_at
+    }
+```
+
+Use when the question turns to schema. Show primary keys and foreign keys explicitly. Cardinality matters: `||--o{` is one-to-many.
+
+### Template D — Sharding by hash (flowchart)
+
+The classic horizontal-scaling diagram.
 
 ```mermaid
 flowchart LR
     Client>Client]
-    Coord[Query Coordinator]
-    subgraph Shards [Sharded by user_id hash]
-        S1[(Shard 1<br/>users 0-25%)]
-        S2[(Shard 2<br/>users 25-50%)]
-        S3[(Shard 3<br/>users 50-75%)]
-        S4[(Shard 4<br/>users 75-100%)]
+    Router[Query Router<br/>shard = hash(user_id) % N]
+    subgraph Shards
+        S1[(Shard 1)]
+        S2[(Shard 2)]
+        S3[(Shard 3)]
+        S4[(Shard 4)]
     end
 
-    Client --> Coord
-    Coord -- single-shard route --> S1
-    Coord -- single-shard route --> S2
-    Coord -- scatter-gather --> S3
-    Coord -- scatter-gather --> S4
+    Client --> Router
+    Router --> S1
+    Router --> S2
+    Router --> S3
+    Router --> S4
 ```
 
-Use when explaining horizontal scaling. Label the shard key (`hash(user_id)`, `tenant_id`, etc.) — it's the most important detail.
-
-### Template D — Data model with tenant isolation
-
-```mermaid
-erDiagram
-    TENANT ||--o{ USER : has
-    TENANT ||--o{ TEAM_CONFIG : owns
-    USER ||--o{ TEAM_MEMBERSHIP : in
-    TEAM ||--o{ TEAM_MEMBERSHIP : has
-    USER ||--o{ USER_CONFIG : owns
-    TEAM ||--o{ TEAM_CONFIG : has
-
-    TENANT {
-        uuid id PK
-        string name
-        string region
-    }
-    USER {
-        uuid id PK
-        uuid tenant_id FK "RLS key"
-        string email
-    }
-    USER_CONFIG {
-        uuid user_id FK
-        string field_key
-        jsonb value
-        bigint version
-        uuid tenant_id FK "denormalized for RLS"
-    }
-    TEAM_CONFIG {
-        uuid team_id FK
-        string field_key
-        jsonb value
-        string mode "force | default"
-        bigint version
-        uuid tenant_id FK "denormalized for RLS"
-    }
-```
-
-Use when discussing **schema design**. Stamp `tenant_id` on every row — staff candidates name this as the multi-tenant isolation invariant.
-
-### Template E — Write request lifecycle (state diagram)
-
-```mermaid
-stateDiagram-v2
-    [*] --> Received
-    Received --> Validated: schema check
-    Validated --> Persisted: DB commit
-    Validated --> Rejected: 400/409
-    Persisted --> Published: outbox → Kafka
-    Published --> FannedOut: workers consume
-    FannedOut --> [*]
-    Persisted --> [*]: ack to client
-    Rejected --> [*]
-```
-
-Use when the question turns to **lifecycle, idempotency, or retry semantics**. The split path (ack to client at `Persisted` while async fanout continues) is the staff-level point.
-
-### Template F — Multi-region active-active (subgraphs as regions)
-
-```mermaid
-flowchart TB
-    subgraph US [us-east-1]
-        US_API[API]
-        US_DB[(Primary US)]
-        US_API --> US_DB
-    end
-    subgraph EU [eu-west-1]
-        EU_API[API]
-        EU_DB[(Primary EU)]
-        EU_API --> EU_DB
-    end
-    subgraph Coord [Global Coordination Plane]
-        Meta[(Metadata - small, replicated)]
-    end
-
-    US_DB <-. async replication .-> EU_DB
-    US_API --> Meta
-    EU_API --> Meta
-    Client_US>US User] --> US_API
-    Client_EU>EU User] --> EU_API
-```
-
-Use for **multi-region** designs. Subgraphs make the region boundary visible. Dotted edges for async cross-region replication.
+Use when the question turns to scaling beyond a single primary. Label the shard key on the router — it's the most important detail. Mention the cross-shard query problem (scatter-gather) in narration, not in the diagram.
 
 ---
 
-## §4 — Sequence diagram patterns worth memorizing
+## §4 — Anti-patterns
 
-These are the high-value sub-patterns inside a `sequenceDiagram`:
-
-**Optimistic concurrency / 409 retry:**
-```mermaid
-sequenceDiagram
-    Client->>Server: PATCH (version=v3)
-    Server->>DB: UPDATE WHERE version=v3
-    DB-->>Server: 0 rows (current is v4)
-    Server-->>Client: 409 + (current_value, v4)
-    Client->>Client: merge or reject
-    Client->>Server: PATCH (version=v4)
-    Server-->>Client: 200
-```
-
-**Idempotency key dedup:**
-```mermaid
-sequenceDiagram
-    Client->>Server: POST /pay (Idempotency-Key: abc)
-    Server->>Cache: GET idem:abc
-    Cache-->>Server: miss
-    Server->>DB: charge + record idem:abc → response
-    Server-->>Client: 200
-    Note over Client,Server: Network drops, client retries
-    Client->>Server: POST /pay (Idempotency-Key: abc)
-    Server->>Cache: GET idem:abc
-    Cache-->>Server: cached response
-    Server-->>Client: 200 (same response, no double charge)
-```
-
-**Single-flight / cache stampede prevention:**
-```mermaid
-sequenceDiagram
-    par Concurrent requests
-        C1->>Server: GET /expensive
-    and
-        C2->>Server: GET /expensive
-    and
-        C3->>Server: GET /expensive
-    end
-    Server->>Server: lock(key)
-    Server->>Origin: fetch (one call)
-    Origin-->>Server: data
-    Server->>Cache: store
-    Server-->>C1: data
-    Server-->>C2: data
-    Server-->>C3: data
-```
+- **Don't draw the kitchen sink.** Cap a diagram at ~10 components. If you need more, split into a high-level + drill-down.
+- **Don't omit edge labels for non-obvious flows.** Two services connected by an unlabeled line tells the interviewer nothing.
+- **Don't use `flowchart` when `sequenceDiagram` is right.** "Walk me through what happens when X" wants temporal order; a static box-graph followed by prose narration is a missed beat.
+- **Don't draw before clarifying.** A diagram before requirements is decorative — narrate what you're optimizing for first.
+- **Don't repeat the diagram in prose.** "As you can see, the API calls the cache, then the database" is wasted breath. Narrate the *why*, not the *what*.
 
 ---
 
-## §5 — Anti-patterns (don't do these)
-
-- **Don't draw the kitchen sink.** A diagram with 30 boxes is unreadable. Cap at ~10 components per diagram; split into a high-level + drill-downs if you need more.
-- **Don't omit edge labels for non-obvious flows.** Two services connected by a line tells the interviewer nothing. `-- gRPC, p99 50ms -->` tells them everything.
-- **Don't use `flowchart` when `sequenceDiagram` is right.** If the interviewer asked "walk me through what happens when X," they want a sequence diagram. Drawing a static box-graph and then narrating temporal order in prose is a missed beat.
-- **Don't draw before clarifying.** A diagram before requirements is decorative. Diagram comes *after* you've stated what you're optimizing for.
-- **Don't repeat the diagram in prose.** "As you can see in the diagram, the API calls the cache, then the database" is wasted breath. The diagram already said that — narrate the *why*, not the *what*.
-
----
-
-## §6 — Quick reference: Mermaid syntax
+## §5 — Mermaid syntax quick reference
 
 **Flowchart edges:**
 - `A --> B` solid arrow
 - `A -.-> B` dotted (async / weak)
 - `A ==> B` thick (high-volume / hot path)
 - `A -- label --> B` labeled edge
-- `A o--o B` association (no direction)
 
 **Sequence diagram messages:**
 - `A->>B: msg` solid arrow
 - `A-->>B: response` dotted return
 - `A-)B: async msg` open arrow (fire-and-forget)
 - `Note over A,B: ...` annotation
-- `loop label ... end`, `alt cond ... else ... end`, `par ... and ... end`
+- `alt cond ... else ... end`, `loop label ... end`
 
 **ER cardinality:**
 - `||--||` one to one
-- `||--o{` one to many (mandatory on left, optional many on right)
-- `}o--o{` many to many (optional both sides)
+- `||--o{` one to many
+- `}o--o{` many to many
 
 For more: [Mermaid official docs](https://mermaid.js.org/intro/).
