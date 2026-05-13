@@ -12,7 +12,7 @@
     {
       "name": "system-design",
       "description": "A practice harness for system design interviews. Four modes: mock (Agent as strict interviewer), learn (Agent as candidate), postmortem (diagnose a real interview), generate (author a fresh question + rubric).",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "author": {
         "name": "feitongyang",
         "email": "feitong.yang@outlook.com"
