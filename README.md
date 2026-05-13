@@ -11,9 +11,9 @@ Works in **Claude Code** (raw skill, or as a plugin via the marketplace) and **C
 
 ## Demo
 
-`learn --auto` — Claude runs both the interviewer and the candidate as sub-agents while you watch. Sample question: *design X.com's timeline feed* at staff level.
+`learn --auto` on *design X.com's timeline feed* (staff level). Two sub-agents — one interviewer, one candidate — run a full 5-round interview while you watch, and the session closes with a written retrospective grading both sides.
 
-https://github.com/user-attachments/assets/d77424b6-4051-4e12-a5dc-0aa4a1b4b238
+https://github.com/user-attachments/assets/24673305-6dbf-4b39-a04a-6262a61d961c
 
 A shorter clip showing first-run setup (`examples/init/demo-init.mp4`) is also checked into the repo.
 
