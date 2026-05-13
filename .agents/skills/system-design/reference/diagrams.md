@@ -4,7 +4,7 @@ Two supported styles. Pick via `--diagram-style`.
 
 | Style | When to use | Default? |
 |---|---|---|
-| `ascii` | Renders in any terminal, including Codex CLI. Works in plain `git diff`, code-review tools, and Slack. | ✅ default |
+| `ascii` | RFC-style box drawings. Renders in any terminal (Codex CLI), plain `git diff`, code-review tools, Slack. | ✅ default |
 | `mermaid` | Renders to images in Claude Code, GitHub, and most Markdown viewers. Use when the user is reading in a rendered surface, or asks for it. | opt-in |
 
 **When to draw — this matters:**
@@ -29,29 +29,47 @@ Two supported styles. Pick via `--diagram-style`.
 
 ## §2 — ASCII conventions (default style)
 
-Keep it readable in any monospace font. Don't reach for Unicode box-drawing chars (`─│┌┐`) — they render unevenly across terminals and break in copy-paste.
+RFC-style: real boxes drawn with `+`, `-`, `|`. ASCII-only (no Unicode box-drawing chars — they break in many terminals and on copy-paste).
 
-**Components:**
-- `[Service]` — stateless service / API
-- `[(Database)]` — persistent store
-- `[[Cache]]` — in-memory store
-- `[/Queue/]` — message bus
-- `((CDN))` — edge / CDN
-- `>Client]` — external actor
+**Boxes:**
 
-**Arrows:**
-- `-->` sync call
-- `- ->` async / fire-and-forget
-- `==>` high-volume / hot path
-- Label on the arrow: `--read-->`, `--async-->`, `--~10KB-->`
+```
+   +---------+
+   |  Name   |
+   +---------+
+```
 
-**Flow direction:** Top-down for layered architectures (use `|` and `v`). Left-right for pipelines (use `-->` chains).
+For multi-line / qualified labels:
+
+```
+   +-------------------+
+   |  Query Router     |
+   |  hash(uid) % N    |
+   +-------------------+
+```
+
+**Connections:**
+
+| Style | Means |
+|---|---|
+| `-->` `--->`  | sync call (left-to-right) |
+| `<--` `<---` | sync return |
+| `|` + `v` | flow downward |
+| `^` + `|` | flow upward |
+| `==>` | high-volume / hot path |
+| `- - >` or `-.- >` | async / fire-and-forget |
+
+**Edge labels:** put the label inline on the arrow when it adds info — `--read--->`, `--async-->`, `--~10KB-->`. Skip when obvious.
+
+**Layout:** top-down for layered services. Left-right for pipelines and shard fan-outs. Don't mix in one diagram.
+
+**Component-type hinting:** ASCII boxes can't show shape variations (cylinder for DB, double-rim for cache) — say it in the label instead: `|  Cache  |`, `|  DB     |`, `|  Queue  |`. Reserve `[(...)]` / `[[...]]` for the Mermaid version only.
 
 ---
 
 ## §3 — Mermaid conventions (opt-in)
 
-Use the same semantics as ASCII; just render in Mermaid syntax.
+Same semantics; Mermaid syntax.
 
 **Flowchart shapes:** `[Service]`, `[(Database)]`, `[[Cache]]`, `[/Queue/]`, `((CDN))`, `>Client]`.
 
@@ -74,17 +92,29 @@ The opening high-level architecture for almost any read-heavy service.
 **ASCII:**
 
 ```
->Client]
-   |
-   v
-[Load Balancer]
-   |
-   v
-[API Service] --read--> [[Cache]]
-   |                       |
-   |                       | (miss)
-   |                       v
-   |--write--> [(Primary DB)] - -async repl- -> [(Replica)]
+                +----------+
+                |  Client  |
+                +-----+----+
+                      |
+                      v
+                +-----+----+
+                |   Load   |
+                | Balancer |
+                +-----+----+
+                      |
+                      v
+                +-----+----+   read    +----------+
+                |          |---------->|          |
+                |   API    |<--miss----|  Cache   |
+                |          |           |          |
+                +-----+----+           +----+-----+
+                      |                     |
+                      | write               | miss
+                      v                     v
+                +-----+----+  async    +----+-----+
+                | Primary  |- - - - - >| Replica  |
+                |   DB     |   repl    |   DB     |
+                +----------+           +----------+
 ```
 
 **Mermaid:**
@@ -110,26 +140,27 @@ Specialize the boxes (rename to actual services). Add a CDN in front for static-
 
 ### Template B — Cache-aside read (sequence)
 
-The canonical request-flow walkthrough.
+The canonical request-flow walkthrough. Sequence diagrams use participant columns and time flowing downward.
 
 **ASCII:**
 
 ```
-Client          API            Cache           DB
-  |              |               |              |
-  |--GET /res-->|               |              |
-  |              |--GET key---->|              |
-  |              |               |              |
-  |              | [hit]         |              |
-  |              |<--value-------|              |
-  |              |               |              |
-  |              | [miss]        |              |
-  |              |<--nil---------|              |
-  |              |--SELECT id=N----------------->|
-  |              |<--row-------------------------|
-  |              |--SET key TTL 5m-->|          |
-  |              |                              |
-  |<--200 OK----|                              |
+   Client          API           Cache            DB
+     |              |              |              |
+     |--GET /res--->|              |              |
+     |              |--GET key---->|              |
+     |              |              |              |
+     |              | [cache hit]  |              |
+     |              |<--value------|              |
+     |              |              |              |
+     |              | [cache miss] |              |
+     |              |<--nil--------|              |
+     |              |--SELECT id=N--------------->|
+     |              |<--row-----------------------|
+     |              |--SET key TTL 5m-->|         |
+     |              |              |              |
+     |<--200 OK-----|              |              |
+     |              |              |              |
 ```
 
 **Mermaid:**
@@ -163,15 +194,38 @@ The familiar User / Post / Comment shape.
 **ASCII:**
 
 ```
-USER (id PK, email, created_at)
-  | 1:N  authors
-  v
-POST (id PK, author_id FK -> USER.id, body, created_at)
-  | 1:N  has
-  v
-COMMENT (id PK, post_id FK -> POST.id, author_id FK -> USER.id, body, created_at)
+   +-----------------+
+   |      USER       |
+   +-----------------+
+   | id (PK)         |
+   | email           |
+   | created_at      |
+   +--------+--------+
+            |
+            | 1:N  (authors)
+            v
+   +--------+--------+
+   |      POST       |
+   +-----------------+
+   | id (PK)         |
+   | author_id (FK)  |
+   | body            |
+   | created_at      |
+   +--------+--------+
+            |
+            | 1:N  (has)
+            v
+   +--------+----------+
+   |     COMMENT       |
+   +-------------------+
+   | id (PK)           |
+   | post_id (FK)      |
+   | author_id (FK)    |
+   | body              |
+   | created_at        |
+   +-------------------+
 
-(also: USER 1:N COMMENT  via author_id  — writes)
+   (also: USER 1:N COMMENT via author_id — writes)
 ```
 
 **Mermaid:**
@@ -211,15 +265,23 @@ The classic horizontal-scaling diagram.
 **ASCII:**
 
 ```
->Client]
-   |
-   v
-[Query Router]   shard = hash(user_id) % N
-   |
-   +--> [(Shard 1)]
-   +--> [(Shard 2)]
-   +--> [(Shard 3)]
-   +--> [(Shard 4)]
+                +----------+
+                |  Client  |
+                +-----+----+
+                      |
+                      v
+            +---------+---------+
+            |   Query Router    |
+            | hash(user_id) % N |
+            +-+-----+-----+-----+
+              |     |     |     |
+       +------+     |     |     +------+
+       |            |     |            |
+       v            v     v            v
+   +-------+   +-------+ +-------+ +-------+
+   |Shard 1|   |Shard 2| |Shard 3| |Shard 4|
+   |  DB   |   |  DB   | |  DB   | |  DB   |
+   +-------+   +-------+ +-------+ +-------+
 ```
 
 **Mermaid:**
@@ -254,16 +316,19 @@ Use when the question turns to scaling beyond a single primary. Label the shard 
 - **Don't draw before clarifying.** A diagram before requirements is decorative — narrate what you're optimizing for first.
 - **Don't repeat the diagram in prose.** "As you can see, the API calls the cache, then the database" is wasted breath. Narrate the *why*, not the *what*.
 - **Don't mix styles in one session.** Pick `ascii` or `mermaid` at the start and stay there. Mixing forces the reader to context-switch.
+- **Don't use Unicode box-drawing chars** (`─│┌┐└┘├┤┬┴┼`) in ASCII mode — they render unevenly across terminals and break in copy-paste. Use plain `+ - |` only.
 
 ---
 
 ## §6 — Quick syntax reference
 
 ### ASCII
-- `[Service]` box, `[(DB)]` cylinder, `[[Cache]]` in-memory, `[/Queue/]` queue, `((CDN))` edge
-- `-->` sync, `- ->` async, `==>` hot path
+- Box: `+---+ | x | +---+`
+- Sync arrow: `-->`, `<--`; vertical: `|` + `v` or `^`
+- Async arrow: `- - >` or `-.- >`
+- Hot path: `==>`
 - Labels on arrows: `--read-->`, `--async-->`
-- Sequence: `participant | participant | ...` columns; `--msg-->` arrows; `[guard]` for branches
+- Sequence: columns of participants connected by `|`; messages on arrows between columns; `[guard]` for branches
 
 ### Mermaid
 - Flowchart edges: `A --> B`, `A -.-> B` (dotted/async), `A ==> B` (thick/hot), `A -- label --> B`
