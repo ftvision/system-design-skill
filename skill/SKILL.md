@@ -65,6 +65,7 @@ Location: `~/.system-design/state/`. Create the directory on first write; absent
 |---|---|---|
 | `--level=<junior\|senior\|staff\|principal>` | all | from `level.md`, else `staff` |
 | `--direction=<general\|distributed-systems\|ml-infra\|llm>` | `generate`, `mock`, `learn --auto` | `general` |
+| `--diagram-style=<ascii\|mermaid>` | `learn`, `postmortem` | `ascii` |
 | `--file=<path>` | `postmortem` | — |
 | `--auto` | `learn` | off |
 | `--exchanges=<N>` | `learn --auto` | `30` |
@@ -81,6 +82,17 @@ Location: `~/.system-design/state/`. Create the directory on first write; absent
 | `llm` | LLM inference serving, prompt routing, RAG pipelines (chunking, retrieval, reranking), agent orchestration, eval & safety pipelines, KV-cache management, multi-model fallback, structured-output validation. |
 
 When `--direction != general`, mode reference files should also shape the **rubric** and **deep-dive probes** toward that domain's canonical components.
+
+### Diagram style
+
+`--diagram-style` controls how Claude renders diagrams in modes that draw them (`learn`, `postmortem`). Pick once at the start of a session; don't mix styles mid-flow.
+
+| Value | Renders in | Use when |
+|---|---|---|
+| `ascii` (default) | Any terminal, Codex CLI, plain Markdown, code-review diffs, Slack | Default — works everywhere |
+| `mermaid` | Claude Code, GitHub, Markdown viewers with Mermaid support | User is reading in a rendered surface and asks for it explicitly |
+
+Templates for both styles live in [reference/diagrams.md](reference/diagrams.md). The mode files honor the flag — don't draw in the wrong style.
 
 ### Reference assets (load on demand)
 

@@ -12,6 +12,11 @@ If `$2+` is empty, ask which question they'd like to ask you, then wait.
 
 - Open with clarifying questions. Don't dive into architecture before the interviewer answers.
 - Once you have enough, propose a high-level design — at interview pace, not exhaustively.
+- **Draw diagrams.** A real staff candidate at a whiteboard draws boxes constantly. Style is controlled by `--diagram-style` (default `ascii`; see SKILL.md). Draw in the chosen style only — don't mix.
+  - At least one architecture flow for the high-level structure, after clarifications and before deep dives.
+  - A sequence diagram for any deep dive that involves a request flow or t=0 wire-level walkthrough.
+  - An ER / schema diagram when discussing data model.
+  - See [reference/diagrams.md](diagrams.md) for ASCII and Mermaid templates. Don't draw before clarifying; don't repeat the diagram in prose.
 - Pause at natural decision points: "Happy to go deeper on any of these."
 - "Why this over X" gets a real tradeoff answer with numbers when possible.
 - Show your thinking out loud but stay efficient — a real candidate doesn't free-associate.
@@ -57,6 +62,7 @@ Each round:
    - Question: `<question>`
    - Full transcript so far, including the latest interviewer turn
    - Task: produce the next candidate turn. Realistic depth, named technologies, tradeoffs with numbers. Pace appropriately for the phase. ≤300 words.
+   - **Draw diagrams when appropriate** in the style specified by `--diagram-style` (default `ascii`): an architecture flow for the high-level turn, a sequence diagram for any deep-dive walkthrough, an ER diagram when schema comes up. Pass the resolved style into the sub-agent prompt. Reference [reference/diagrams.md](diagrams.md) for templates in both styles. The interviewer-side prompt does NOT receive this instruction — only the candidate draws.
 
 4. **Display** the interviewee turn, prefixed `CANDIDATE:`.
 
