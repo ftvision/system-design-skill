@@ -65,6 +65,7 @@ Location: `~/.system-design/state/`. Create the directory on first write; absent
 |---|---|---|
 | `--level=<junior\|senior\|staff\|principal>` | all | from `level.md`, else `staff` |
 | `--direction=<general\|distributed-systems\|ml-infra\|llm>` | `generate`, `mock`, `learn --auto` | `general` |
+| `--diagram-style=<ascii\|mermaid>` | `learn`, `postmortem` | `ascii` |
 | `--file=<path>` | `postmortem` | — |
 | `--auto` | `learn` | off |
 | `--exchanges=<N>` | `learn --auto` | `30` |
@@ -81,6 +82,27 @@ Location: `~/.system-design/state/`. Create the directory on first write; absent
 | `llm` | LLM inference serving, prompt routing, RAG pipelines (chunking, retrieval, reranking), agent orchestration, eval & safety pipelines, KV-cache management, multi-model fallback, structured-output validation. |
 
 When `--direction != general`, mode reference files should also shape the **rubric** and **deep-dive probes** toward that domain's canonical components.
+
+### Diagram style
+
+`--diagram-style` controls how Claude renders diagrams in modes that draw them (`learn`, `postmortem`). Pick once at the start of a session; don't mix styles mid-flow.
+
+| Value | Renders in | Use when |
+|---|---|---|
+| `ascii` (default) | Any terminal, Codex CLI, plain Markdown, code-review diffs, Slack | Default — works everywhere |
+| `mermaid` | Claude Code, GitHub, Markdown viewers with Mermaid support | User is reading in a rendered surface and asks for it explicitly |
+
+Templates for both styles live in [reference/diagrams.md](reference/diagrams.md). The mode files honor the flag — don't draw in the wrong style.
+
+### Reference assets (load on demand)
+
+These are reference files modes consult when relevant. Don't load them on every invocation; load when the rule below fires.
+
+| File | Load when |
+|---|---|
+| [reference/primitives.md](reference/primitives.md) — cited cheatsheet of latency, capacity, BOE templates, named patterns | `mock` debrief when scoring `tradeoff reasoning` or `deep-dive depth` ≤ 3 (cite the relevant section); `postmortem` when diagnosis includes "missed numbers" or "no BOE"; `learn` when the candidate-side agent needs to ground a number. |
+| [reference/topics.md](reference/topics.md) — vetted topic catalog with difficulty + slugs | `mock` or `learn` invoked without a topic (suggest from the catalog filtered by `level.md` and `--direction`); `generate` invoked without a topic (pick from `modern` or `staff+`). |
+| [reference/diagrams.md](reference/diagrams.md) — Mermaid cheatsheet with system-design templates | `learn` whenever Claude is in the candidate role (default mode always; `--auto` candidate sub-agent only — never the interviewer sub-agent); `postmortem` when illustrating a structural gap in "what stronger would have done." **Never** loaded by `mock` (interviewer doesn't draw) or `generate` (questions are prose only). |
 
 ## Hard don'ts (apply across all modes)
 
