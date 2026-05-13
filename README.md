@@ -9,6 +9,14 @@ A skill for practicing system design interviews. Four modes:
 
 Works in **Claude Code** (raw skill, or as a plugin via the marketplace) and **Codex CLI**.
 
+## Demo
+
+`learn --auto` on *design X.com's timeline feed* (staff level). Two sub-agents — one interviewer, one candidate — run a full 5-round interview while you watch, and the session closes with a written retrospective grading both sides.
+
+https://github.com/user-attachments/assets/24673305-6dbf-4b39-a04a-6262a61d961c
+
+A shorter clip showing first-run setup (`examples/init/demo-init.mp4`) is also checked into the repo.
+
 ## Install
 
 Pick the path that matches your harness. The repo ships three pre-built install layouts so you can copy the right one.

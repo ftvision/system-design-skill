@@ -6,3 +6,11 @@ system-design-practice/
 
 # OS noise
 .DS_Store
+
+# Demo media — track only the small init clips we explicitly want.
+# Larger demos (auto-learn etc.) are hosted via GitHub user-attachments
+# and embedded in the README by URL.
+examples/**/*.gif
+examples/**/*.mp4
+!examples/init/demo-init.gif
+!examples/init/demo-init.mp4
