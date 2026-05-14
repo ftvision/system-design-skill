@@ -82,7 +82,7 @@ Display this retrospective.
 
 ### State
 
-Do **not** update `practiced.md` or `weaknesses.md`. `--auto` is a learning aid, not user practice.
+Do **not** update `runs.md` or `weaknesses.md`. `--auto` is a learning aid, not user practice.
 
 ### User interruption
 

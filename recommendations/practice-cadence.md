@@ -40,7 +40,7 @@ The retrospective is the most valuable part. Even strong runs have real flaws; s
 
 ### `postmortem` converts experience into signal
 
-A real interview is the most expensive data you'll generate this quarter. Postmortem within 24 hours, every time. It writes to the same `weaknesses.md` that biases future mocks — so a single bad round automatically focuses the next month of practice.
+A real interview is the most expensive data you'll generate this quarter. Postmortem within 24 hours, every time. It writes to the same `runs.md` and `weaknesses.md` that bias future mocks — so a single bad round automatically focuses the next month of practice.
 
 ---
 
@@ -71,8 +71,8 @@ If `weaknesses.md` keeps logging the same dimension after 3–4 mocks, drill it:
 
 The skill writes to `~/.system-design/state/`:
 
-- `practiced.md` — slugs already attempted; prevents `generate` and `mock` from repeating.
-- `weaknesses.md` — append-only log of weak dimensions per session. `mock` reads this and biases deep-dive picks.
+- `runs.md` — one row per scored `mock` or `postmortem`: date, slug, mode, level, direction, the five dimension scores, and a one-sentence action item for the next session (`<next>`, may be blank). The primary tracker. `mock` and `postmortem` read it on entry to surface a preamble (total sessions at this level, recurring weak dimensions, last 3 slugs, and the previous session's action item if set). The slug column is also the "already practiced" list for topic selection.
+- `weaknesses.md` — append-only log of weak dimensions (score ≤3) with one-line context per session. `mock` biases its deep-dive picks toward recurring entries here.
 - `level.md` — your target level (default `staff`).
 
 State is per-user, persists across sessions, and is shared between Claude Code and Codex installs. You don't need to bring anything between sessions — the skill remembers.

@@ -85,8 +85,8 @@ The skill writes to `~/.system-design/state/`:
 
 | File | Purpose |
 |---|---|
-| `practiced.md` | Question slugs you've practiced. Prevents repeats. |
-| `weaknesses.md` | Weak dimensions from past `mock` debriefs and `postmortem` diagnoses. `mock` biases its deep-dive picks toward these. |
+| `runs.md` | One row per scored session: date, slug, mode, level, direction, the five dimension scores, and a one-sentence action item for the next session (may be blank). The primary tracker — read at the start of each `mock`/`postmortem` to surface a preamble (total sessions, recurring weak dimensions, last 3 slugs, plus the previous session's action item if set). Slug column also serves as the "already practiced" list for `mock` and `generate`. |
+| `weaknesses.md` | One row per weak dimension (score ≤3) from past `mock` debriefs and `postmortem` diagnoses, with a one-line context quote. `mock` biases its deep-dive picks toward recurring weak dimensions. |
 | `level.md` | Your target level (default `staff` if absent). |
 
 State is per-user, harness-neutral, and not in this repo. It's created on first use. Same state directory whether you installed in Claude Code or Codex — practice carries over.

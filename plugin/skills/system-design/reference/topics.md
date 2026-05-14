@@ -5,7 +5,7 @@ A curated set of system-design problems, tagged by difficulty and by the dimensi
 **Tagging key:**
 - **Difficulty**: `easy` (warmup, ~30 min), `medium` (canonical 45-min mock), `hard` (staff bar, multiple deep dives), `staff+` (principal-level, requires multi-region or novel substrate).
 - **Dimensions**: which of the 5 scoring dimensions the problem most stresses. (Most problems stress all five; the tag picks out where the *teeth* are.)
-- **Slug**: stable identifier for `practiced.md` / `weaknesses.md` entries.
+- **Slug**: stable identifier for `runs.md` / `weaknesses.md` entries.
 
 ---
 
