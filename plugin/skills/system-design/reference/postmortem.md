@@ -17,7 +17,7 @@ Otherwise, run a structured Q&A. **Ask one or two questions at a time, not all a
 
 ## Diagnosis
 
-Before scoring: read `~/.system-design/state/runs.md` and surface the pre-session preamble per the rule in SKILL.md (3 lines: total sessions at the resolved level, recurring weak dimensions, last 3 slugs). Skip silently if fewer than 2 prior rows at this level. This frames the diagnosis against the user's recent pattern.
+Before scoring: read `~/.system-design/state/runs.md` and surface the pre-session preamble per the rule in SKILL.md (total sessions at the resolved level, recurring weak dimensions, last 3 slugs, and last action item if the most recent row has a non-blank `<next>`). Skip silently if fewer than 2 prior rows at this level. This frames the diagnosis against the user's recent pattern.
 
 Map their narration to the 5 scoring dimensions (see SKILL.md). For each:
 - Estimated score 1–5
@@ -33,11 +33,13 @@ Then output:
 
 Resolve the slug: the question's slug if the user named a known one, else `postmortem-YYYY-MM-DD`. Direction is always `general` (postmortem doesn't accept `--direction`).
 
-Append one row to `~/.system-design/state/runs.md` with the estimated dimension scores:
+Append one row to `~/.system-design/state/runs.md` with the estimated dimension scores plus the next-session action item:
 
 ```
-YYYY-MM-DD | <slug> | postmortem | <level> | <direction> | <s_scoping>,<s_structure>,<s_depth>,<s_tradeoffs>,<s_comms>
+YYYY-MM-DD | <slug> | postmortem | <level> | <direction> | <s_scoping>,<s_structure>,<s_depth>,<s_tradeoffs>,<s_comms> | <next>
 ```
+
+`<next>` is one short sentence (≤80 chars) naming the single most actionable drill before the next session — pulled from the diagnosis's "Drills" section. Pick the most specific one (e.g. "rehearse naming a message queue + retry semantics out loud" beats "improve communication"). Leave blank if nothing specific emerges; still write the trailing `|` to keep column count consistent.
 
 Append one row to `~/.system-design/state/weaknesses.md` for each dimension that scored ≤3:
 

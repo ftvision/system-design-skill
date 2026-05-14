@@ -5,7 +5,7 @@ Run a full mock interview. You play a strict, experienced staff-level interviewe
 Before phase 1:
 
 1. Read `~/.system-design/state/runs.md` and `~/.system-design/state/weaknesses.md`. From `runs.md`, compute recurring weak dimensions at the resolved level (any dimension ≤3 in ≥half of the last 4 sessions at this level). These bias the phase-4 deep-dive pick.
-2. Surface the pre-session preamble per the rule in SKILL.md (3 lines: total sessions, recurring weak dimensions, last 3 slugs). Skip silently if fewer than 2 prior rows at this level.
+2. Surface the pre-session preamble per the rule in SKILL.md (total sessions, recurring weak dimensions, last 3 slugs, and last action item if the most recent row has a non-blank `<next>`). Skip silently if fewer than 2 prior rows at this level.
 3. If `$2+` (problem) is empty, load [reference/topics.md](topics.md) — pick a topic from the tier matching `level.md`, filtered by `--direction` if set, biased toward an unpracticed slug (the slug column of `runs.md` is your "already practiced" list).
 
 ## Phases (enforce them)
@@ -41,13 +41,15 @@ Then:
 
 Write both files. Order doesn't matter; both append.
 
-Append one row to `~/.system-design/state/runs.md` with all five dimension scores:
+Append one row to `~/.system-design/state/runs.md` with all five dimension scores plus the next-session action item:
 
 ```
-YYYY-MM-DD | <slug> | mock | <level> | <direction> | <s_scoping>,<s_structure>,<s_depth>,<s_tradeoffs>,<s_comms>
+YYYY-MM-DD | <slug> | mock | <level> | <direction> | <s_scoping>,<s_structure>,<s_depth>,<s_tradeoffs>,<s_comms> | <next>
 ```
 
 Use the resolved level and direction (default `general` if `--direction` wasn't set). Scores are the integers from the debrief, in dimension order.
+
+`<next>` is one short sentence (≤80 chars) naming the single most actionable thing to drill before the next session. Pick it from the "top 2 weak dimensions to drill next" + "next-question recommendations" produced in the debrief — surface the most specific, behavioral one (e.g. "drill Kafka partition math; reach for exact MB/s numbers" beats "improve tradeoff reasoning"). If no specific drill emerges, leave it blank — still write the trailing `|` so the column count stays consistent. Don't pad with filler like "review fundamentals."
 
 Append one row to `~/.system-design/state/weaknesses.md` for each dimension that scored ≤3 — one row per weak dimension flagged:
 

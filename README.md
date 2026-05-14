@@ -85,7 +85,7 @@ The skill writes to `~/.system-design/state/`:
 
 | File | Purpose |
 |---|---|
-| `runs.md` | One row per scored session: date, slug, mode, level, direction, and the five dimension scores. The primary tracker — read at the start of each `mock`/`postmortem` to surface a 3-line preamble (total sessions, recurring weak dimensions, last 3 slugs). Slug column also serves as the "already practiced" list for `mock` and `generate`. |
+| `runs.md` | One row per scored session: date, slug, mode, level, direction, the five dimension scores, and a one-sentence action item for the next session (may be blank). The primary tracker — read at the start of each `mock`/`postmortem` to surface a preamble (total sessions, recurring weak dimensions, last 3 slugs, plus the previous session's action item if set). Slug column also serves as the "already practiced" list for `mock` and `generate`. |
 | `weaknesses.md` | One row per weak dimension (score ≤3) from past `mock` debriefs and `postmortem` diagnoses, with a one-line context quote. `mock` biases its deep-dive picks toward recurring weak dimensions. |
 | `level.md` | Your target level (default `staff` if absent). |
 

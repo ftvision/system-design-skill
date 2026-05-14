@@ -71,7 +71,7 @@ If `weaknesses.md` keeps logging the same dimension after 3–4 mocks, drill it:
 
 The skill writes to `~/.system-design/state/`:
 
-- `runs.md` — one row per scored `mock` or `postmortem`: date, slug, mode, level, direction, and the five dimension scores. The primary tracker. `mock` and `postmortem` read it on entry to surface a 3-line preamble (total sessions at this level, recurring weak dimensions, last 3 slugs). The slug column is also the "already practiced" list for topic selection.
+- `runs.md` — one row per scored `mock` or `postmortem`: date, slug, mode, level, direction, the five dimension scores, and a one-sentence action item for the next session (`<next>`, may be blank). The primary tracker. `mock` and `postmortem` read it on entry to surface a preamble (total sessions at this level, recurring weak dimensions, last 3 slugs, and the previous session's action item if set). The slug column is also the "already practiced" list for topic selection.
 - `weaknesses.md` — append-only log of weak dimensions (score ≤3) with one-line context per session. `mock` biases its deep-dive picks toward recurring entries here.
 - `level.md` — your target level (default `staff`).
 

@@ -55,7 +55,7 @@ Location: `~/.system-design/state/`. Create the directory on first write; absent
 
 | File | Format | Written by |
 |---|---|---|
-| `runs.md` | One row per scored session: `` `YYYY-MM-DD \| <slug> \| <mode> \| <level> \| <direction> \| <s1>,<s2>,<s3>,<s4>,<s5>` ``. Scores are the 5 dimensions in order: scoping, structure, depth, tradeoffs, comms. | `mock` (debrief), `postmortem` (diagnosis) |
+| `runs.md` | One row per scored session: `` `YYYY-MM-DD \| <slug> \| <mode> \| <level> \| <direction> \| <s1>,<s2>,<s3>,<s4>,<s5> \| <next>` ``. Scores are the 5 dimensions in order: scoping, structure, depth, tradeoffs, comms. `<next>` is one short sentence — the single most actionable drill before next session — or blank if nothing specific emerges. | `mock` (debrief), `postmortem` (diagnosis) |
 | `weaknesses.md` | One row per weak dimension (score ≤3): `` `YYYY-MM-DD \| <slug> \| <dimension> \| <one-line context>` `` | `mock` (debrief), `postmortem` (diagnosis) |
 | `level.md` | Single token: `junior` / `senior` / `staff` / `principal` | User-managed; skill reads only |
 
@@ -63,13 +63,14 @@ Location: `~/.system-design/state/`. Create the directory on first write; absent
 
 ### Pre-session preamble (mock and postmortem)
 
-Before phase 1 of `mock` (and before diagnosis in `postmortem`), if `runs.md` has ≥2 prior rows at the resolved level, surface a 3-line preamble to the user — no more, no less:
+Before phase 1 of `mock` (and before diagnosis in `postmortem`), if `runs.md` has ≥2 prior rows at the resolved level, surface a preamble to the user (3 or 4 lines depending on the last row's `<next>` field):
 
 1. Total sessions at this level (count rows where `<level>` matches the resolved level).
 2. Recurring weak dimensions — name any of the 5 dimensions that scored ≤3 in ≥half of the last 4 sessions at this level. If none, say "no recurring weaknesses; pick a new topic to broaden."
 3. Last 3 slugs practiced at this level, most recent first.
+4. Last session's action item — if the most recent row at this level has a non-blank `<next>` field, surface it as `last action item: <text>`. Omit the line if blank or if the row is in the legacy 6-column format.
 
-If fewer than 2 rows exist at this level, skip the preamble silently — it has nothing useful to say yet.
+If fewer than 2 rows exist at this level, skip the preamble silently — it has nothing useful to say yet. Rows in the legacy 6-column format (no trailing `<next>`) are read as `<next>` = empty.
 
 ### Flags
 
