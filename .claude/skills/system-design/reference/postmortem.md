@@ -17,6 +17,8 @@ Otherwise, run a structured Q&A. **Ask one or two questions at a time, not all a
 
 ## Diagnosis
 
+Before scoring: read `~/.system-design/state/runs.md` and surface the pre-session preamble per the rule in SKILL.md (3 lines: total sessions at the resolved level, recurring weak dimensions, last 3 slugs). Skip silently if fewer than 2 prior rows at this level. This frames the diagnosis against the user's recent pattern.
+
 Map their narration to the 5 scoring dimensions (see SKILL.md). For each:
 - Estimated score 1–5
 - Reasoning grounded in something they said
@@ -29,6 +31,18 @@ Then output:
 
 ## State updates
 
-Append findings to `~/.system-design/state/weaknesses.md` (use the question slug if named; else `postmortem-YYYY-MM-DD`).
+Resolve the slug: the question's slug if the user named a known one, else `postmortem-YYYY-MM-DD`. Direction is always `general` (postmortem doesn't accept `--direction`).
 
-Append the slug to `~/.system-design/state/practiced.md`.
+Append one row to `~/.system-design/state/runs.md` with the estimated dimension scores:
+
+```
+YYYY-MM-DD | <slug> | postmortem | <level> | <direction> | <s_scoping>,<s_structure>,<s_depth>,<s_tradeoffs>,<s_comms>
+```
+
+Append one row to `~/.system-design/state/weaknesses.md` for each dimension that scored ≤3:
+
+```
+YYYY-MM-DD | <slug> | <dimension> | <one-line context>
+```
+
+If no dimension scored ≤3, skip `weaknesses.md` entirely.
