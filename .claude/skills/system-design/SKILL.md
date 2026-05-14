@@ -1,7 +1,7 @@
 ---
 name: system-design
 description: "Practice system design interviews. Four modes: `mock` (Claude=interviewer, strict, scores at end), `learn` (Claude=interviewee at staff level so user sees what good looks like; `--auto` runs both roles as sub-agents while user observes), `postmortem` (diagnose a past real interview, with --file or free-form Q&A), `generate` (create a fresh question + rubric and write 4 markdown files to ./system-design-questions/<slug>/). Use when the user types the system-design command, asks to practice, mock, or postmortem a system design interview, or wants to generate practice questions."
-version: 0.2.0
+version: 0.2.1
 argument-hint: "<mock|learn|postmortem|generate> [problem-or-topic] [--flags]"
 user-invocable: true
 ---
