@@ -1,7 +1,7 @@
 {
   "name": "system-design",
   "description": "A practice harness for system design interviews. Four modes: mock, learn, postmortem, generate.",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "author": {
     "name": "feitongyang",
     "email": "feitong.yang@outlook.com"
