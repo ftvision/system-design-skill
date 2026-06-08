@@ -136,4 +136,6 @@ system-design-skill/
 └── .agents/skills/system-design/          # Codex CLI raw-install layout (synced)
 ```
 
-**Edit `skill/` only.** Run `./scripts/sync.sh` after changes to regenerate the three install layouts. Commit all four (`skill/` + the three synced dirs) so users can `cp` directly without running the script.
+**Edit `skill/` only.** The three install layouts are **derived copies — never edit them by hand.** After changing `skill/`, run `./scripts/sync.sh` to regenerate them, then commit all four (`skill/` + the three derived dirs) so users can `cp` directly without running the script.
+
+Drift is guarded: `./scripts/sync.sh --check` verifies the derived copies match `skill/` (no writes), and CI runs it on every PR — so a hand-edited or un-synced copy fails the build.

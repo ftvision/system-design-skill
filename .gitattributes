@@ -1,0 +1,6 @@
+# The three install layouts are DERIVED from skill/ by scripts/sync.sh.
+# Never edit them by hand — edit skill/ and re-run the script. Marking them
+# generated collapses their diffs on GitHub and signals "do not edit".
+.claude/skills/system-design/**  linguist-generated=true
+.agents/skills/system-design/**  linguist-generated=true
+plugin/skills/system-design/**   linguist-generated=true
