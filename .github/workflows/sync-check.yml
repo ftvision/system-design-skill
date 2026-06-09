@@ -1,0 +1,16 @@
+name: sync-check
+
+# Fails if the derived install layouts (.claude/, .agents/, plugin/) drift from
+# the canonical skill/ source. Edit skill/ only, then run ./scripts/sync.sh.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify derived copies match skill/
+        run: ./scripts/sync.sh --check
