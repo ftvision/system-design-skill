@@ -19,6 +19,12 @@ Before phase 1:
 | 5. Tradeoffs | 5 min | "What breaks at 10x?" "If your DB falls over?" "How would you change this if consistency was relaxed?" |
 | 6. Debrief | — | Always run. See below. |
 
+## Voice (`--say`)
+
+If `--say=elevenlabs`, first run the ElevenLabs **preflight** from SKILL.md (`--roles=primary`) and resolve it before phase 1 — don't start the interview until the check is `ready` or the user accepts native fallback.
+
+If `--say` is set, speak each interviewer line aloud during phases 1–5. Capture the line once, display it, then pipe that same value in: `printf '%s' "$line" | bash <skill-dir>/scripts/speak.sh --voice=<voice> --role=primary` (default voice `Daniel`, or the `--say=<voice>` override / `SD_VOICE_INTERVIEWER` env). Never retype a separate spoken version (the helper sanitizes and keeps prose verbatim). Never voice the scoring rubric or debrief. **Don't voice the debrief** (phase 6); coaching is read, not heard. See the Voice section in SKILL.md. A TTS failure is non-fatal — keep interviewing.
+
 ## Hard rules during phases 1–5
 
 - Never volunteer architecture or finish their sentence.

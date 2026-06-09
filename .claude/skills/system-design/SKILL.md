@@ -1,7 +1,7 @@
 ---
 name: system-design
 description: "Practice system design interviews. Four modes: `mock` (Claude=interviewer, strict, scores at end), `learn` (Claude=interviewee at staff level so user sees what good looks like; `--auto` runs both roles as sub-agents while user observes), `postmortem` (diagnose a past real interview, with --file or free-form Q&A), `generate` (create a fresh question + rubric and write 4 markdown files to ./system-design-questions/<slug>/). Use when the user types the system-design command, asks to practice, mock, or postmortem a system design interview, or wants to generate practice questions."
-version: 0.2.1
+version: 0.3.0
 argument-hint: "<mock|learn|postmortem|generate> [problem-or-topic] [--flags]"
 user-invocable: true
 ---
@@ -35,7 +35,7 @@ Run before loading the reference file.
 |---|---|
 | Read level | Load `~/.system-design/state/level.md`. If absent, default to `staff`. `--level=<value>` overrides for this invocation. |
 | Read state | Load `runs.md` and `weaknesses.md` from the state dir. Missing files = empty; that's fine. |
-| Parse flags | See flags table. Invalid `--level` value → ask, don't guess. |
+| Parse flags | See flags table. Invalid `--level` value → ask, don't guess. `--say` follows the Voice rules below (invalid voice → silent fallback, never ask). |
 
 ## Shared concepts
 
@@ -82,6 +82,7 @@ If fewer than 2 rows exist at this level, skip the preamble silently — it has 
 | `--file=<path>` | `postmortem` | — |
 | `--auto` | `learn` | off |
 | `--exchanges=<N>` | `learn --auto` | `30` |
+| `--say[=<voice>\|elevenlabs]` | `mock`, `learn` | off |
 
 ### Direction (problem domain)
 
@@ -106,6 +107,43 @@ When `--direction != general`, mode reference files should also shape the **rubr
 | `mermaid` | Claude Code, GitHub, Markdown viewers with Mermaid support | User is reading in a rendered surface and asks for it explicitly |
 
 Templates for both styles live in [reference/diagrams.md](reference/diagrams.md). The mode files honor the flag — don't draw in the wrong style.
+
+### Voice (`--say`)
+
+`--say` reads **spoken turns** aloud through the bundled `scripts/speak.sh` helper (resolve it relative to this skill's directory). Off by default. Only `mock` (Claude = interviewer) and `learn` (Claude = candidate) have a voice role; `--say` is a silent no-op in `postmortem` and `generate`.
+
+| Form | Effect |
+|---|---|
+| `--say` | On, using native macOS `say` with per-role default voices. |
+| `--say=<voice>` | On, forcing that macOS voice for the single speaking role (e.g. `--say=Samantha`). In `learn --auto`, ignored in favor of the two-voice defaults below — override those via env instead. |
+| `--say=elevenlabs` | On, routing through ElevenLabs if `ELEVENLABS_API_KEY` is set; falls back to native `say` otherwise. |
+
+**ElevenLabs setup:** export `ELEVENLABS_API_KEY`. Voices are picked by **role**: built-in defaults already give `primary` (interviewer / single-speaker) and `secondary` (candidate) two distinct ElevenLabs voices, so `learn --auto` works with no extra setup. Override either with `ELEVENLABS_VOICE_PRIMARY` / `ELEVENLABS_VOICE_SECONDARY`, or force one voice everywhere with `ELEVENLABS_VOICE_ID`. Any network/auth failure falls back to native `say` mid-session without interrupting.
+
+**Preflight (required when `--say=elevenlabs`).** Before the first spoken turn, run the bundled check and act on it — do **not** start the interview until it's resolved:
+
+```
+bash <skill-dir>/scripts/speak.sh --check --engine=elevenlabs --roles=<roles>
+```
+
+`<roles>` is the role(s) this session will use: `mock` and `learn` default → `primary`; `learn --auto` → `primary,secondary`. Read the final `STATUS:` line:
+
+- `ready` → proceed silently.
+- `needs-key` or `needs-voices` → **relay the command's printed guidance to the user verbatim** (it contains the exact `export` lines and how to list voice IDs), then ask them to either (a) set the vars — in `~/.zshrc`, then reply so you re-run `--check` — or (b) continue this session on native `say` instead, or (c) cancel. Loop on `--check` until `ready` or the user picks a fallback.
+
+This preflight applies only to `--say=elevenlabs`. Plain `--say` / `--say=<voice>` use native `say` and need no check.
+
+How modes call it:
+
+- **Single source — pipe the displayed turn in via stdin; never retype it.** Capture each turn once (the sub-agent's returned text in `--auto`, or the exact string you're about to display otherwise), display *that*, and feed the *same* value to the helper on stdin:
+  `printf '%s' "$turn" | bash <skill-dir>/scripts/speak.sh --voice=<name> --role=<primary|secondary>`
+  Screen and audio must come from one variable so they cannot diverge. **Do not** hand-write, condense, summarize, re-order, or respell a separate "spoken version" in the command — that reintroduces drift.
+- `--voice` is the macOS `say` voice; `--role` selects the ElevenLabs voice (single-speaker modes → `primary`; `learn --auto` → `primary` for interviewer, `secondary` for candidate).
+- The helper sanitizes its stdin itself — stripping fenced diagrams, markdown tables, stray ASCII-art, and inline markup — while keeping the prose **verbatim**. So pass the full turn (diagrams and all); don't pre-edit it. macOS `say` handles acronyms and numbers acceptably on its own.
+- Default voices: interviewer = `Daniel` (en_GB), candidate = `Samantha` (en_US). These are deliberately distinct so `learn --auto` is a listenable two-person dialog. Override with env `SD_VOICE_INTERVIEWER` / `SD_VOICE_CANDIDATE` (single-role modes also honor a plain `--say=<voice>`).
+- Speaking is synchronous (turns are heard in order). Never let a TTS failure interrupt the session — `speak.sh` always exits 0; treat it as fire-and-forget.
+
+Invalid voice names fall back to the default inside `speak.sh` — don't ask, don't error.
 
 ### Reference assets (load on demand)
 

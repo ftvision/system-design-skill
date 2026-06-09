@@ -26,6 +26,12 @@ If `$2+` is empty, ask which question they'd like to ask you, then wait.
 
 After the interview ends, offer one line out-of-character: "Want me to flag what a critical observer would have called out about my own answers?" Only do so if the user asks.
 
+### Voice (`--say`)
+
+If `--say=elevenlabs`, first run the ElevenLabs **preflight** from SKILL.md (`--roles=primary`) and resolve it before answering the first question.
+
+If `--say` is set, speak your candidate turns aloud. Capture the turn once, display it, then pipe that same value in: `printf '%s' "$turn" | bash <skill-dir>/scripts/speak.sh --voice=<voice> --role=primary` (default voice `Samantha`, or the `--say=<voice>` override / `SD_VOICE_CANDIDATE` env). Never retype a separate spoken version — the helper strips diagrams/markdown and keeps the prose verbatim. Don't voice the closing retrospective. See the Voice section in SKILL.md.
+
 ---
 
 ## `--auto` mode
@@ -41,6 +47,7 @@ Each exchange = 2 sub-agent calls. Default 30 exchanges = ~60 calls. **Tell the 
 1. Determine the question. Use `$2+` verbatim if provided. Otherwise generate one inline using the `generate` topic-selection logic — biased by `--direction` if set (see SKILL.md) — but **do not write files**; hold the question in memory only.
 2. Set level (default `staff` or `--level=...`) and exchanges (default `30` or `--exchanges=N`).
 3. Initialize an in-memory transcript: `[]`.
+4. If `--say` is set, resolve the two voices once: interviewer = `SD_VOICE_INTERVIEWER` else `Daniel`; candidate = `SD_VOICE_CANDIDATE` else `Samantha`. They must differ — if both resolve to the same name, keep the interviewer's and reset the candidate to the other default. (A bare `--say=<voice>` does **not** apply here; `--auto` always needs two voices.) If `--say=elevenlabs`, run the ElevenLabs **preflight** from SKILL.md with `--roles=primary,secondary` and resolve it (ready, or user accepts native fallback) before the loop starts.
 
 ### Loop
 
@@ -55,7 +62,7 @@ Each round:
    - Full transcript so far
    - Task: produce the next interviewer turn only (a question, pushback, or close). Don't reveal answers. ≤200 words. To end the interview, prefix the response with `ENDING:`.
 
-2. **Display** the interviewer turn to the user, prefixed `INTERVIEWER:`.
+2. **Display** the interviewer turn to the user, prefixed `INTERVIEWER:`. If `--say` is set, pipe the **sub-agent's returned text** (the exact bytes you displayed — never a retyped version) to the helper on stdin: `printf '%s' "$interviewer_turn" | bash <skill-dir>/scripts/speak.sh --voice=<interviewer-voice> --role=primary` (default `Daniel`, or `SD_VOICE_INTERVIEWER`). Synchronous — let it finish before spawning the next agent so the two voices never overlap.
 
 3. **Interviewee turn.** Spawn an Agent:
    - Role: staff-level candidate at a top tech company
@@ -64,7 +71,7 @@ Each round:
    - Task: produce the next candidate turn. Realistic depth, named technologies, tradeoffs with numbers. Pace appropriately for the phase. ≤300 words.
    - **Draw diagrams when appropriate** in the style specified by `--diagram-style` (default `ascii`): an architecture flow for the high-level turn, a sequence diagram for any deep-dive walkthrough, an ER diagram when schema comes up. Pass the resolved style into the sub-agent prompt. Reference [reference/diagrams.md](diagrams.md) for templates in both styles. The interviewer-side prompt does NOT receive this instruction — only the candidate draws.
 
-4. **Display** the interviewee turn, prefixed `CANDIDATE:`.
+4. **Display** the interviewee turn, prefixed `CANDIDATE:`. If `--say` is set, pipe the **sub-agent's returned text** (the exact bytes you displayed — never a retyped version) to the helper on stdin with the **other** voice: `printf '%s' "$candidate_turn" | bash <skill-dir>/scripts/speak.sh --voice=<candidate-voice> --role=secondary` (default `Samantha`, or `SD_VOICE_CANDIDATE`). The candidate voice must differ from the interviewer voice so the dialog is followable by ear. The helper drops any diagram from the audio while it stays visible on screen.
 
 5. Append both turns to the transcript.
 
